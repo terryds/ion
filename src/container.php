@@ -9,10 +9,12 @@ class Container
 	private $instances = array();
 	private $interfaces = array();
 	private $params = array();
+	private $args = array();
 
 	public function make($class, array $args = array())
 	{
 		$key = ($args) ? $class . '_' . crc32(serialize($args)) : $class;
+		$this->args = $args;
 		if (isset($this->keys[$key]))
 		{
 			return $this->_get($key);
@@ -23,8 +25,9 @@ class Container
 		return $instance;
 	}
 
-	public function makeNew($class, array $args=array())
+	public function makeNew($class, array $args = array())
 	{
+		$this->args = $args;
 		if (isset($this->factories[$class]))
 		{
 			return $this->closures[$class]($this);
@@ -40,7 +43,7 @@ class Container
 
 	private function _createInstance($class, array $args)
 	{
-		$reflection = new ReflectionClass($class);
+		$reflection = new \ReflectionClass($class);
 		$constructor = $reflection->getConstructor();
 		if (!$constructor || !$num_of_params = $constructor->getNumberOfParameters()) {
 			$this->keys[$class] = TRUE;
@@ -60,7 +63,7 @@ class Container
 			array_splice($args, $pos, 0, array($v));
 		}
 		if (count($args) != $num_of_params) {
-			throw new \InvalidArgumentException(sprintf('Your supplied arguments are less than required. Required: %s, given: %s', $num_of_params, count($args)));
+			throw new \RuntimeException(sprintf('Your supplied arguments are less than required. Required: %s, given: %s', $num_of_params, count($args)));
 		}
 		$instance = $reflection->newInstanceArgs($args);
 		return $instance;
@@ -74,7 +77,7 @@ class Container
 		$args['param'][$key] = array();
 		foreach ($params as $k => $param) {
 			$param_name = $param->getName();
-			if ($type_hint = $param->getClass()) {
+				if ($type_hint = $param->getClass()) {
 				$class_name = $type_hint->getName();
 				if (isset($this->keys[$class_name]) || class_exists($class_name))
 				{
@@ -113,27 +116,21 @@ class Container
 	public function bindInterface($interface, $class)
 	{
 		$this->keys[$interface] = TRUE;
-		$key = 'default_'.$interface;
 		if (isset($this->keys[$class]))
 		{
-			$this->instances[$key] = $this->_get($class);
-			$this->interfaces[$interface] = TRUE;
-		}
-		elseif (is_object($class))
-		{
-			$this->instances[$key] = $class;
-			$this->interfaces[$interface] = TRUE;
+			$this->interfaces[$interface] = $class;
 		}
 		elseif (class_exists($class))
 		{
-			$reflection = new ReflectionClass($class);
+			$reflection = new \ReflectionClass($class);
 			if (!$reflection->implementsInterface($interface)) {
 				throw new \RuntimeException(sprintf("The interface %s is not implemented by class %s.", $interface, $class));
 			}
 			$constructor = $reflection->getConstructor();
 			if (!$constructor || !$constructor->getNumberOfParameters()) {
-				$this->instances[$key] = new $class;
-				$this->interfaces[$interface] = TRUE;
+				$this->keys[$class] = TRUE;
+				$this->instances[$class] = new $class;
+				$this->interfaces[$interface] = $class;
 			}
 			else
 			{
@@ -143,7 +140,7 @@ class Container
 		else
 		{
 			unset($this->keys[$interface]);
-			throw new \InvalidArgumentException(sprintf("Invalid argument two. Key or object or class name expected and the class must implement that interface, given class: %s, interface: %s", $class, $interface));
+			throw new \InvalidArgumentException(sprintf("Invalid argument two. The registered key or class name expected and the class must implement that interface, given class: %s, interface: %s", $class, $interface));
 		}
 	}
 
@@ -160,6 +157,11 @@ class Container
 		return $this->params[$param];
 	}
 
+	public function getArgs()
+	{
+		return $this->args();
+	}
+
 	private function _get($key)
 	{
 		if (!isset($this->keys[$key])) {
@@ -172,8 +174,7 @@ class Container
 			return $this->instances[$key];
 		}
 		if (isset($this->interfaces[$key])) {
-			$key = 'default_'.$key;
-			return $this->instances[$key];
+			return $this->_get($this->interfaces[$key]);
 		}
 		$instance = $this->instances[$key] = $this->closures[$key]($this);
 		return $instance;
