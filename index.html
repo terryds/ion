@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <!-- Standard Meta -->
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <!-- Site Properities -->
+  <title>ION - A PHP Inversion of Control Container </title>
+
+  <link rel="stylesheet" type="text/css" href="src/reset.css">
+  <link rel="stylesheet" type="text/css" href="src/semantic.min.css">
+  <link rel="stylesheet" type="text/css" href="src/pygments.css">
+
+  <script src="src/jquery.min.js"></script>
+
+  <style type="text/css">
+
+  body {
+    background-color: #FFFFFF;
+  }
+
+  .masthead .ui.menu .ui.button {
+    margin-left: 0.5em;
+  }
+
+  .masthead.segment {
+    min-height: 700px;
+    padding: 1em 0em;
+  }
+
+  .masthead h1.ui.header {
+    margin-top: 5em;
+    margin-bottom: 3em;
+  }
+
+  .masthead .text.container h2 {
+    line-height: 1.5em;
+  }
+
+  .main.container {
+    margin-top: 2em;
+  }
+
+  .main.menu {
+    margin-top: 4em;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+    transition:
+      box-shadow 0.5s ease,
+      padding 0.5s ease
+    ;
+  }
+  .main.menu .item img.logo {
+    margin-right: 1.5em;
+  }
+
+  .overlay {
+    float: left;
+    margin: 0em 3em 1em 0em;
+  }
+  .overlay .menu {
+    position: relative;
+    left: 0;
+    transition: left 0.5s ease;
+  }
+
+  .main.menu.fixed {
+    background-color: #FFFFFF;
+    border: 1px solid #DDD;
+    box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2);
+  }
+  .overlay.fixed .menu {
+    left: 800px;
+  }
+
+  .text.container .left.floated.image {
+    margin: 2em 2em 2em -4em;
+  }
+  .text.container .right.floated.image {
+    margin: 2em -4em 2em 2em;
+  }
+
+  .ui.footer.segment {
+    margin: 5em 0em 0em;
+    padding: 5em 0em;
+  }
+  .ui.text.container {
+    margin-top: 2em;
+  }
+
+  .inline.code {
+    font-family: monospace;
+    background-color: #f9f2f4;
+    border-radius: 4px;
+    color: #c7254e;
+  }
+
+  .inline.code .param {
+    color: #3498db;
+  }
+  </style>
+
+</head>
+<body>
+<div class="ui vertical masthead center aligned segment">
+  <div class="ui secondary menu">
+    <div class="header ui blue item">
+    <a href="#">ION Container</a>
+    </div>
+    <a class="item">
+      Tutorial
+    </a>
+    <a class="item">
+      Docs
+    </a>
+    <a class="item">
+      About
+    </a>
+    <div class="right item">
+     <a class="ui button">View on Github</a>
+    </div>
+  </div>
+  
+    <div class="ui text container">
+      <h1 class="ui blue header">ION Container</h1>
+      <h2>A minimalist inversion of control container using <br>automatic dependency injection.</h2>
+    </div>
+</div>
+
+
+  <div class="ui text container">
+    <h3 class="ui blue header">Installation</h3>
+
+    <p>To install <a class="ui blue">ION Container</a>, you need to add it into your composer.json file</p>
+    <div class="hlcode">
+    <div class="syntax">
+    <pre><span class="p">{</span>
+      <span class="nt">"require"</span><span class="p">:</span> <span class="s2">"terrydjony/ion"</span>
+<span class="p">}</span></pre></div>
+
+    </div>
+    <p>Or, by using terminal</p>
+    <div class="hlcode">
+    <div class="syntax"><pre>composer require terrydjony/ion</pre></div>
+
+    </div>
+    <h3 class="ui blue header">Usage</h3>
+    <p>First, you need to instantiate the container</p>
+    <div class="hlcode">
+    <div class="syntax"><pre><span class="k">use</span> <span class="nx">Ion\Container</span><span class="p">;</span>
+
+<span class="nv">$ion</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Container</span><span class="p">();</span>
+</pre></div>
+
+    </div>
+    <h3 class="ui blue header">Instantiating object</h3>
+    <p>To instantiate any objects, you should use <code class="inline code">make(<span class="param">$class</span>, array <span class="param">$args</span> = array())</code>, instead of <code class="inline code">new</code> keyword.</p>
+    <p>Notice that the parameter two <code class="inline code"><span class="param">$args</span></code> is optional</p>
+    <p>For example, if you want to instantiate <code class="inline code">stdClass</code> class.</p>
+    <div class="hlcode">
+<div class="syntax"><pre><span class="nv">$stdClass</span> <span class="o">=</span> <span class="nv">$ion</span><span class="o">-&gt;</span><span class="na">make</span><span class="p">(</span><span class="s1">'stdClass'</span><span class="p">);</span>
+
+<span class="c1">// $stdClass is an instance of stdClass</span>
+</pre></div>
+
+</div>
+
+    <h3 class="ui blue header">Registering Service</h3>
+    <p>You can register the way to instantiate some class via <code class="inline code">register(<span class="param">$key</span>, <span class="param">$closure</span>)</code></p>
+
+    <p>Here is an example of registering PDO class with some defined arguments</p>
+    <div class="hlcode">
+<div class="syntax"><pre>
+<span class="nv">$ion</span><span class="o">-&gt;</span><span class="na">register</span><span class="p">(</span><span class="s1">'PDO'</span><span class="p">,</span> <span class="k">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nx">PDO</span><span class="p">(</span><span class="s1">'mysql:host=localhost;dbname=databasename'</span><span class="p">,</span><span class="s1">'root'</span><span class="p">,</span><span class="s1">''</span><span class="p">);</span>
+<span class="p">};</span>
+
+<span class="nv">$pdo</span> <span class="o">=</span> <span class="nv">$ion</span><span class="o">-&gt;</span><span class="na">make</span><span class="p">(</span><span class="s1">'PDO'</span><span class="p">);</span>
+
+<span class="c1">// $pdo is an instance of PDO class with the arguments as defined before</span>
+</pre></div>
+
+</div>
+
+    <p>The above example will register PDO service. So, if you instantiate it via <code class="inline code">$ion->make(<span class="param">'PDO'</span>)</code>, you don't need to supply any arguments since all the arguments have been defined before.</p>
+    <p>However, it will be nice to have a database config.</p>
+    <div class="hlcode">
+<div class="syntax"><pre>
+<span class="nv">$config</span> <span class="o">=</span> <span class="k">array</span><span class="p">(</span><span class="s1">'dsn'</span><span class="o">=&gt;</span><span class="s1">'mysql:host=localhost;dbname=databasename'</span><span class="p">,</span><span class="s1">'username'</span><span class="o">=&gt;</span><span class="s1">'root'</span><span class="p">,</span><span class="s1">'password'</span><span class="o">=&gt;</span><span class="s1">''</span><span class="p">);</span>
+
+<span class="nv">$ion</span><span class="o">-&gt;</span><span class="na">register</span><span class="p">(</span><span class="s1">'PDO'</span><span class="p">,</span> <span class="k">function</span><span class="p">()</span> <span class="k">use</span> <span class="p">(</span><span class="nv">$config</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nx">PDO</span><span class="p">(</span><span class="nv">$config</span><span class="p">[</span><span class="s1">'dsn'</span><span class="p">],</span><span class="nv">$config</span><span class="p">[</span><span class="s1">'username'</span><span class="p">],</span><span class="nv">$username</span><span class="p">[</span><span class="s1">'password'</span><span class="p">]);</span>
+<span class="p">});</span>
+
+<span class="nv">$pdo</span> <span class="o">=</span> <span class="nv">$ion</span><span class="o">-&gt;</span><span class="na">make</span><span class="p">(</span><span class="s1">'PDO'</span><span class="p">);</span>
+</pre></div>
+
+    </div>
+    <p>And, notice that the first parameter of <code class="inline code">register</code> is a key. The key can be anything, but it's recommended to use the class name as the key.</p>
+    <div class="hlcode">
+<div class="syntax"><pre>
+<span class="nv">$ion</span><span class="o">-&gt;</span><span class="na">register</span><span class="p">(</span><span class="s1">'DAL'</span><span class="p">,</span> <span class="k">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nx">PDO</span><span class="p">(</span><span class="nv">$config</span><span class="p">[</span><span class="s1">'dsn'</span><span class="p">],</span><span class="nv">$config</span><span class="p">[</span><span class="s1">'username'</span><span class="p">],</span><span class="nv">$config</span><span class="p">[</span><span class="s1">'password'</span><span class="p">]);</span>
+<span class="p">};</span>
+
+<span class="nv">$dal</span> <span class="o">=</span> <span class="nv">$ion</span><span class="o">-&gt;</span><span class="na">make</span><span class="p">(</span><span class="s1">'DAL'</span><span class="p">);</span>
+<span class="c1">// $dal is a PDO object</span>
+</pre></div>
+  <p>Notice that if you register a service, it'll be a shared instance. If you want to register a factory, use <code class="inline code">registerFactory</code></p>
+
+</div>
+  <h3 class="ui blue header">Registering Factory Services</h3>
+  <p>You can register a factory using <code class="inline code">registerFactory(<span class="param">$key</span>, <span class="param">$closure</span>)</code></p>
+  <div class="hlcode">
+<div class="syntax"><pre>
+<span class="nv">$ion</span><span class="o">-&gt;</span><span class="na">registerFactory</span><span class="p">(</span><span class="s1">'CarFactory'</span><span class="p">,</span> <span class="k">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nx">Car</span><span class="p">();</span>
+<span class="p">};</span>
+
+<span class="nv">$car1</span> <span class="o">=</span> <span class="nv">$ion</span><span class="o">-&gt;</span><span class="na">make</span><span class="p">(</span><span class="s1">'CarFactory'</span><span class="p">);</span>
+<span class="nv">$car2</span> <span class="o">=</span> <span class="nv">$ion</span><span class="o">-&gt;</span><span class="na">make</span><span class="p">(</span><span class="s1">'CarFactory'</span><span class="p">);</span>
+
+<span class="c1">// $car1 and $car2 are different objects</span>
+</pre></div>
+
+  </div>
+  <p>If you want to use the supplied arguments, you can use <code class="inline code">getArgs()</code> method.</p>
+  <div class="hlcode">
+<div class="syntax"><pre>
+<span class="nv">$this</span><span class="o">-&gt;</span><span class="na">ion</span><span class="o">-&gt;</span><span class="na">registerFactory</span><span class="p">(</span><span class="s1">'User'</span><span class="p">,</span> <span class="k">function</span><span class="p">(</span><span class="nv">$ion</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="k">new</span> <span class="nx">User</span><span class="p">(</span><span class="nv">$ion</span><span class="o">-&gt;</span><span class="na">getArgs</span><span class="p">());</span>
+<span class="p">});</span>
+
+<span class="nv">$user1</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">ion</span><span class="o">-&gt;</span><span class="na">make</span><span class="p">(</span><span class="s1">'User'</span><span class="p">,</span><span class="k">array</span><span class="p">(</span><span class="s1">'Foo'</span><span class="p">));</span>
+<span class="c1">// $user1 is an instance with argument Foo</span>
+</pre></div>
+
+  </div>
+
+
+  <h3 class="ui blue header">Registering Parameters</h3>
+  <p>You can also register parameters using <code class="inline code">setParam(<span class="param">$param</span>, <span class="param">$value</span>)</code> and get the value via <code class="inline code">param(<span class="param">$param_name</span>)</code></p>
+  <div class="hlcode">
+<div class="syntax"><pre>
+<span class="nv">$ion</span><span class="o">-&gt;</span><span class="na">setParam</span><span class="p">(</span><span class="s1">'db_dsn'</span><span class="p">,</span><span class="s1">'mysql:host=localhost;dbname=databasename'</span><span class="p">);</span>
+<span class="nv">$ion</span><span class="o">-&gt;</span><span class="na">setParam</span><span class="p">(</span><span class="s1">'db_user'</span><span class="p">,</span><span class="s1">'root'</span><span class="p">);</span>
+<span class="nv">$ion</span><span class="o">-&gt;</span><span class="na">setParam</span><span class="p">(</span><span class="s1">'db_password'</span><span class="p">,</span><span class="s1">''</span><span class="p">);</span>
+
+<span class="nv">$ion</span><span class="o">-&gt;</span><span class="na">register</span><span class="p">(</span><span class="s1">'PDO'</span><span class="p">,</span> <span class="k">function</span><span class="p">(</span><span class="nv">$ion</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nx">PDO</span><span class="p">(</span><span class="nv">$ion</span><span class="o">-&gt;</span><span class="na">param</span><span class="p">(</span><span class="s1">'db_dsn'</span><span class="p">),</span> <span class="nv">$ion</span><span class="o">-&gt;</span><span class="na">param</span><span class="p">(</span><span class="s1">'db_user'</span><span class="p">),</span> <span class="nv">$ion</span><span class="o">-&gt;</span><span class="na">param</span><span class="p">(</span><span class="s1">'db_pass'</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+
+  </div>
+
+  <h3 class="ui blue header">Forcing New Instance</h3>
+  <p>You can force a new instance using <code class="inline code">makeNew(<span class="param">$key</span>, <span class="param">$args=array()</span>)</code>.</p>
+  <div class="hlcode">
+<div class="syntax"><pre>
+<span class="c1">// register a PDO service before</span>
+
+<span class="nv">$pdo1</span> <span class="o">=</span> <span class="nv">$ion</span><span class="o">-&gt;</span><span class="na">makeNew</span><span class="p">(</span><span class="s1">'PDO'</span><span class="p">);</span>
+<span class="nv">$pdo2</span> <span class="o">=</span> <span class="nv">$ion</span><span class="o">-&gt;</span><span class="na">makeNew</span><span class="p">(</span><span class="s1">'PDO'</span><span class="p">);</span>
+
+<span class="c1">// $pdo1 and $pdo2 are different objects no matter how the PDO service is registered </span>
+  </pre></div></div>
+
+  <h3 class="ui blue header">Defining Default Class For Interface</h3>
+  <p>You can bind an interface to a class. So, if a class depends on that interface, that class will represent that interface</p>
+  <p>If the class must be instantiated with some arguments, you should register it first. Then, you give the key as the parameter two of <code class="inline code">bindInterface</code></p>
+  <p>But, if the class can be instantiated with no arguments, you can just specify the class name.</p>
+  <div class="hlcode">
+<div class="syntax"><pre>
+<span class="k">class</span> <span class="nc">A</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">__construct</span><span class="p">(</span><span class="nx">DatabaseAdapterInterface</span> <span class="nv">$dba</span><span class="p">,</span> <span class="nx">StandardClassInterface</span> <span class="nv">$stdClass</span><span class="p">,</span> <span class="nx">StandardInterface</span> <span class="nv">$obj</span><span class="p">)</span>
+    <span class="p">{</span>
+
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nv">$ion</span><span class="o">-&gt;</span><span class="na">register</span><span class="p">(</span><span class="s1">'PDO'</span><span class="p">,</span> <span class="k">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nx">PDO</span><span class="p">(</span><span class="s1">'mysql:host=localhost;dbname=databasename'</span><span class="p">,</span><span class="s1">'root'</span><span class="p">,</span><span class="s1">''</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="nv">$ion</span><span class="o">-&gt;</span><span class="na">bindInterface</span><span class="p">(</span><span class="s1">'DatabaseAdapterInterface'</span><span class="p">,</span> <span class="s1">'PDO'</span><span class="p">);</span>
+<span class="nv">$ion</span><span class="o">-&gt;</span><span class="na">bindInterface</span><span class="p">(</span><span class="s1">'StandardClassInterface'</span><span class="p">,</span> <span class="s1">'stdClass'</span><span class="p">);</span>
+
+<span class="nv">$a</span> <span class="o">=</span> <span class="nv">$ion</span><span class="o">-&gt;</span><span class="na">make</span><span class="p">(</span><span class="s1">'A'</span><span class="p">);</span>
+</pre></div>
+
+  </div>
+
+  <h3 class="ui blue header">Automatic Dependency Injection</h3>
+  <p>Suppose you want to instantiate a class A that needs class B which needs class C</p>
+  <p>I mean something like</p>
+  <div class="hlcode">
+<div class="syntax"><pre>
+<span class="k">class</span> <span class="nc">A</span>
+<span class="p">{</span>
+  <span class="k">public</span> <span class="k">function</span> <span class="nf">__construct</span><span class="p">(</span><span class="nx">B</span> <span class="nv">$b</span><span class="p">)</span>
+  <span class="p">{</span>
+
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">class</span> <span class="nc">B</span>
+<span class="p">{</span>
+  <span class="k">public</span> <span class="k">function</span> <span class="nf">__construct</span><span class="p">(</span><span class="nx">C</span> <span class="nv">$c</span><span class="p">)</span>
+  <span class="p">{</span>
+
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">class</span> <span class="nc">C</span>
+<span class="p">{</span>
+  <span class="k">public</span> <span class="k">function</span> <span class="nf">__construct</span><span class="p">()</span>
+  <span class="p">{</span>
+    
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+  </div>
+  <p>And, to make a class A instance, you just need to:</p>
+  <div class="hlcode">
+<div class="syntax"><pre>
+<span class="nv">$a</span> <span class="o">=</span> <span class="nv">$ion</span><span class="o">-&gt;</span><span class="na">make</span><span class="p">(</span><span class="s1">'A'</span><span class="p">);</span>
+</pre></div>
+
+  </div>
+  <p>And, voila! You get the class A instance!</p>
+  <p>If you have a dependency that needs some parameters, you can register the dependency first before making object that needs that dependency</p>
+  <p>And, if the class needs some arguments, you can supply an array of arguments as parameter two of <code class="inline code">make</code> or <code class="inline code">makeNew</code> method.</p>
+  <div class="hlcode">
+<div class="syntax"><pre><span class="k">class</span> <span class="nc">A</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">__construct</span><span class="p">(</span><span class="nx">B</span> <span class="nv">$b</span><span class="p">,</span> <span class="nv">$name</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">echo</span> <span class="s2">"Hello "</span><span class="o">.</span><span class="nv">$name</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">class</span> <span class="nc">B</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">__construct</span><span class="p">(</span><span class="nx">DatabaseAdapterInterface</span> <span class="nv">$dba</span><span class="p">)</span>
+    <span class="p">{</span>
+
+    <span class="p">}</span>
+<span class="p">}</span>
+
+
+<span class="nv">$ion</span><span class="o">-&gt;</span><span class="na">register</span><span class="p">(</span><span class="s1">'PDO'</span><span class="p">,</span> <span class="k">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nx">PDO</span><span class="p">(</span><span class="s1">'mysql:host=localhost;dbname=databasename'</span><span class="p">,</span><span class="s1">'root'</span><span class="p">,</span><span class="s1">''</span><span class="p">);</span>
+<span class="p">});</span>
+<span class="nv">$ion</span><span class="o">-&gt;</span><span class="na">bindInterface</span><span class="p">(</span><span class="s1">'DatabaseAdapterInterface'</span><span class="p">,</span><span class="s1">'PDO'</span><span class="p">);</span>
+
+<span class="nv">$a</span> <span class="o">=</span> <span class="nv">$ion</span><span class="o">-&gt;</span><span class="na">make</span><span class="p">(</span><span class="s1">'A'</span><span class="p">,</span><span class="k">array</span><span class="p">(</span><span class="s1">'World'</span><span class="p">));</span>
+</pre></div>
+
+  </div>
+  <p>The class A instance is made automatically.</p>
+  </div>
+
+  <div class="ui inverted vertical footer segment">
+    <div class="ui center aligned container">
+    <p>ION Container is brought to you by Terry Djony. It's released under MIT license.</p>
+    </div>
+  </div>
+</body></html>
