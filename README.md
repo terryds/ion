@@ -109,7 +109,7 @@ $pdo2 = $ion->makeNew('PDO');
 
 // $pdo1 and $pdo2 are different objects no matter how the PDO service is registered 
 ```  
-##Defining Default Class For Interface
+## Defining Default Class For Interface
 You can bind an interface to a class. So, if a class depends on that interface, that class will represent that interface
 
 If the class must be instantiated with some arguments, you should register it first. Then, you give the key as the parameter two of bindInterface
