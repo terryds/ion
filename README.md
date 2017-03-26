@@ -34,7 +34,7 @@ $stdClass = $ion->make('stdClass');
 // $stdClass is an instance of stdClass
 ```
 
-##Registering Service
+## Registering Service
 
 You can register the way to instantiate some class via `register($key, $closure)`
 Here is an example of registering PDO class with some defined arguments
@@ -88,7 +88,7 @@ $this->ion->registerFactory('User', function($ion) {
 $user1 = $this->ion->make('User',array('Foo'));
 // $user1 is an instance with argument Foo
 ```
-##Registering Parameters
+## Registering Parameters
 You can also register parameters using `setParam($param, $value)` and get the value via `param($param_name)`
 ```php
 $ion->setParam('db_dsn','mysql:host=localhost;dbname=databasename');
@@ -99,7 +99,7 @@ $ion->register('PDO', function($ion) {
     return new PDO($ion->param('db_dsn'), $ion->param('db_user'), $ion->param('db_pass');
 }
 ```
-##Forcing New Instance
+## Forcing New Instance
 You can force a new instance using `makeNew($key, $args=array())`.
 ```php
 // register a PDO service before
@@ -137,7 +137,7 @@ $ion->bindInterface('StandardClassInterface', 'stdClass');
 $a = $ion->make('A');
 ```
 
-##Automatic Dependency Injection
+## Automatic Dependency Injection
 
 Suppose you want to instantiate a class A that needs class B which needs class C
 
